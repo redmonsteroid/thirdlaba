@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <iomanip>
 using namespace std;
 
 void PrintTable (double& x, double y){
@@ -11,7 +12,7 @@ void PrintTable (double& x, double y){
         x=0;
     }
 
-    cout << "  "<< x << "   |   " << y << endl;   
+    cout << setw(6) << x << "    |" << setw(11) << y << endl; // красиво 
 }
 double secondCircle(double& x) {
     double sqrtCheck = 4 - pow(x, 2);
