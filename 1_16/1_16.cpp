@@ -30,7 +30,7 @@ int main () {
     double xk = 6;
     double y=0;
     cout << "  x          y" << endl;
-    while (-3 <= xn && xn < -0.9){
+    while (-3 <= xn && xn < -0.9){  // каждый while новая часть графика
         PrintTable(xn, -1 * xn - 2);
         xn += dx;
     }
