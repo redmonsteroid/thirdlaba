@@ -99,35 +99,37 @@ bool TestMiller(int n, int t, vector<int>& qi) {
 
     if (n_minus_1 = 2 * m) {
         for (int j : qi) {
-            int result;
+            bool MillerF1 = false;
+            bool MillerF2 = false;
+            int k=0;
             for (int i = 0; i < t; i++) {
-                int a = getRandomNumber(2, n - 1); //случайное число a в диапазоне от 2 до n-1
+                int a = getRandomNumber(2, n - 2); //случайное число a в диапазоне от 2 до n-2
 
                 if (modPow(a, n_minus_1, n) != 1) { //первое условие
                     return false;
+                
                 }
 
-                //второе условие
+                //второое условие
                 int q_part = n_minus_1 / j; //(a^((n-1)/q)) mod n //Выбрать рандомное qi
-                result = modPow(a, q_part, n);
+                int result = modPow(a, q_part, n);
                 if (result != 1){
+                    MillerF2 = true;
+        
                     break;
+                } else {
+                    k++;
                 }
+
             }
-            if (result==1){
-            return false;//если состтавное
+            if (k==(t-1)){
+                return false; //если составное
             }
         }
-        
     }
     return true;
 }
 
-
-int NOD(int a, int b) { // наибольший общий делитель
-    if (b == 0) return a;
-    return NOD(b, a % b);
-}
 
 int CanonicalF(int n, vector<int>& qi, int F, int& R) { // вычисление F и R   
     for (size_t i = qi.size() - 1; i + 1 > 0; i--) {
@@ -136,53 +138,45 @@ int CanonicalF(int n, vector<int>& qi, int F, int& R) { // вычисление 
         }
         else {
             R *= qi[i];
+            if (R % 2 == 0) { // добавил
+                R++;
+            }
         }
     }
     return F;
 }
 
 bool TestPoklingtona(int n, int t, vector<int>& qi, int F, int R) {
-    if (n == 2) {
-        return true;
-    }
-    if (n % 2 == 0 || n <= 1){
-        return false;
-    } 
-
-    if (n > 2 && n < 10) {
-        return false;
-    }
-    int n_minus_1 = n - 1;
-
-    if (n_minus_1 = R*F) {
-        for (int i = 0; i < t; i++) {
-            bool foundNonTrivialSquareRoot = false;
-            for (int q : qi) {
-                int a = getRandomNumber(2, n - 1); // Random number in the range [2, n-1]
-                int result = modPow(a, (n - 1) / q, n);
-
-                if (result != 1 && result != n - 1) {
-                    return false; // If a^((n-1)/q) mod n не 1 или -1 n- не простое 
-                }
-                if (result == 1) {
-                    foundNonTrivialSquareRoot = false;
-                    break; 
-                }
+    if (n == 2 || n==5) return true;
+    if (n < 2 || n % 2 == 0) return false;
+    bool PoklingF2 = false;
+    for (int j=0; j < t; j++) {
+        int a = getRandomNumber(2,n-1);
+        if (modPow(a,n-1,n) != 1) {
+            return false;
+        }
+    
+        for (size_t i = 0; i < qi.size(); i++) {
+            if (modPow(a, (n-1)/qi[i], n) == 1) {
+                PoklingF2 = false;
+                break;
             }
-            if (!foundNonTrivialSquareRoot) {
-                return true; // If no non-trivial square root is found for q, n is composite
+            else {
+                PoklingF2 = true;
             }
         }
+        if (PoklingF2==true) return true;
     }
-    return false; // If all q have a non-trivial square root, n is probably prime
+    return false;
 }
 
-bool GOST(int t, int q1) {
+int GOST(int t, int q1) {
     int p = 0;
 
     while (true) {
         int N1 = ceil(pow(2, t - 1) / q1);
-        int N2 = ceil(pow(2, t - 1) * 0 / (q1));
+        int N2 = ceil(pow(2, t - 1) * 0/ (q1));
+
         double N = N1 + N2;
         if (static_cast<int>(round(N)) % 2 != 0) {
             N++;
@@ -191,11 +185,15 @@ bool GOST(int t, int q1) {
         for (int u = 0; pow(2, t) >= (N + u) * q1 + 1; u += 2) {
             p = (N + u) * q1 + 1;
             if ((modPow(2, p - 1, p) == 1) && (modPow(2, N + u, p) != 1)) {
-                return true;
+                return p;
             }
         }
     }
-    return false;
+    return 0;
+}
+int NOD(int a, int b) { // наибольший общий делитель
+if (b == 0) return a;
+return NOD(b, a % b);
 }
 
 bool VerTest(int RandNum, int t, int R, int F) {
@@ -213,7 +211,7 @@ bool VerTest(int RandNum, int t, int R, int F) {
     }
 }
 
-void InPut(int RandNum, bool testResult, int k, bool gostResult, bool millerResult, bool poklingtonResult) {
+void InPut(int RandNum, bool testResult, int k, int gostResult, bool millerResult, bool poklingtonResult) {
     cout  << RandNum << setw(20); 
 
     if (testResult && k <= 5) {
@@ -232,8 +230,8 @@ int main() {
 
     int t1 = 5;
     int k = 0; // количество отвегнутых чисел в тесте
-    int t = 4;
-    int q1 = 3;
+    int t = 9;
+    int q1 = 23;
 
     cout << "Число\tВероятностный тест\tЧисло отвергнутых чисел\t\tГОСТ\t\t\tMiller\t\tPoklington" << endl;
     cout << "_________________________________________________________________________________________________" << endl;
@@ -255,7 +253,7 @@ int main() {
             i--;
             continue;
         }
-        bool gostResult = GOST(t, q1);
+        int gostResult = GOST(t, q1);
 
         bool veroyatnostResult = VerTest(n, t1, R, F);
         InPut(n, veroyatnostResult, k , gostResult , millerResult, poklingtonResult);
